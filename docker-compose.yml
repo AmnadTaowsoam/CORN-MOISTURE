@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  corn-moisture-user-service:
+    build:
+      context: ./CORN-MOISTURE-USER
+      dockerfile: Dockerfile
+    image: corn-moisture-user-service:latest
+    # image: ${QI_REGISTRY_HUB_URL}:${QI_REGISTRY_HUB_PORT}/corn-moisture-user-service:latest
+    env_file:
+      - .env
+    ports:
+      - "${USER_SERVICE_PORT}:5000"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 500M
+    restart: on-failure
+    networks:
+      - corn_moisture_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  corn-moisture-prediction-service:
+    build:
+      context: ./CORN-MOISTURE-PREDICT
+      dockerfile: Dockerfile
+    image: corn-moisture-prediction-service:latest
+    # image: ${QI_REGISTRY_HUB_URL}:${QI_REGISTRY_HUB_PORT}/corn-moisture-prediction-service:latest
+    env_file:
+      - .env
+    ports:
+      - "${PREDICT_PORT}:5001"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    restart: on-failure
+    networks:
+      - corn_moisture_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  corn-moisture-data-service:
+    build:
+      context: ./CORN-MOISTURE-DATA-SERVICE
+      dockerfile: Dockerfile
+    image: corn-moisture-data-service:latest
+    # image: ${QI_REGISTRY_HUB_URL}:${QI_REGISTRY_HUB_PORT}/corn-moisture-data-service:latest
+    env_file:
+      - .env
+    ports:
+      - "${DATA_SERVICE_PORT}:5002"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    restart: on-failure
+    networks:
+      - corn_moisture_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  corn-moisture-frontend:
+    build:
+      context: ./CORN-MOISTURE-FRONTEND
+      dockerfile: Dockerfile
+    image: corn-moisture-frontend:latest
+    # image: ${QI_REGISTRY_HUB_URL}:${QI_REGISTRY_HUB_PORT}/corn-moisture-frontend:latest
+    env_file:
+      - .env
+    ports:
+      - "${FRONTEND_PORT}:5003"
+    restart: on-failure
+    networks:
+      - corn_moisture_network
+
+  corn-moisture-sensor-service:
+    build:
+      context: ./CORN-MOISTURE-SENSOR
+      dockerfile: Dockerfile
+    image: corn-moisture-sensor-service:latest
+    # image: ${QI_REGISTRY_HUB_URL}:${QI_REGISTRY_HUB_PORT}/corn-moisture-sensor-service:latest
+    env_file:
+      - .env
+    ports:
+      - "${SENSOR_SERVICE_PORT}:5004"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    restart: on-failure
+    networks:
+      - corn_moisture_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5004"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  corn-moisture-update-service:
+    build:
+      context: ./CORN-MOISTURE-UPDATE
+      dockerfile: Dockerfile
+    image: corn-moisture-update-service:latest
+    # image: ${QI_REGISTRY_HUB_URL}:${QI_REGISTRY_HUB_PORT}/corn-moisture-update-service:latest
+    env_file:
+      - .env
+    ports:
+      - "${UPDATE_SERVICE_PORT}:5763"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    restart: on-failure
+    networks:
+      - corn_moisture_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5763"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  corn_moisture_network:
+    driver: bridge
